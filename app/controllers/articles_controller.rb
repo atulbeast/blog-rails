@@ -5,12 +5,12 @@ class ArticlesController < ApplicationController
   def index
     @articles = Article.all
 
-    render json: @articles
+    render json: ArticleSerializer.new(@articles).serialized_json
   end
 
   # GET /articles/1
   def show
-    render json: @article
+    render json: ArticleSerializer.new(@article).serialized_json
   end
 
   # POST /articles
@@ -18,7 +18,7 @@ class ArticlesController < ApplicationController
     @article = Article.new(article_params)
 
     if @article.save
-      render json: @article, status: :created, location: @article
+      render json: ArticleSerializer.new(@article).serialized_json, status: :created, location: @article
     else
       render json: @article.errors, status: :unprocessable_entity
     end
@@ -27,7 +27,7 @@ class ArticlesController < ApplicationController
   # PATCH/PUT /articles/1
   def update
     if @article.update(article_params)
-      render json: @article
+      render json: ArticleSerializer.new(@article).serialized_json
     else
       render json: @article.errors, status: :unprocessable_entity
     end
@@ -46,6 +46,6 @@ class ArticlesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def article_params
-      params.fetch(:article, {})
+      params.fetch(:article, {}).permit(:title, :description)
     end
 end
