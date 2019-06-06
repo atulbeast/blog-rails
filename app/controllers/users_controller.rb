@@ -1,19 +1,21 @@
 class UsersController < ApplicationController
-    before_action :set_user, only: [:show, :update, :destroy]
+  before_action :authorize_request, except: :create
+  before_action :find_user, except: %i[create index]
 
-  # GET /articles
+  # GET /users
   def index
+    
     @users = User.all
 
-    render json: UserSerializer.new(@user).serialized_json
+    render json: UserSerializer.new(@users).serialized_json
   end
 
-  # GET /articles/1
+  # GET /users/1
   def show
     render json: UserSerializer.new(@user).serialized_json
   end
 
-  # POST /articles
+  # POST /users
   def create
     @user = User.new(user_params)
 
@@ -24,7 +26,7 @@ class UsersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /articles/1
+  # PATCH/PUT /users/1
   def update
     if @user.update(user_params)
       render json: UserSerializer.new(@user).serialized_json
@@ -33,19 +35,21 @@ class UsersController < ApplicationController
     end
   end
 
-  # DELETE /articles/1
+  # DELETE /users/1
   def destroy
     @user.destroy
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      @user = User.find(params[:id])
+    def find_user
+      @user = User.find_by_email!(params[:_email])
+      rescue ActiveRecord::RecordNotFound
+        render json: { errors: 'User not found' }, status: :not_found
     end
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.fetch(:user, {}).permit(:email, :name)
+      params.fetch(:user, {}).permit(:email, :name, :password, :password_confirmation)
     end
 end
