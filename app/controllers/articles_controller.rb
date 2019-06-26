@@ -4,7 +4,7 @@ class ArticlesController < ApplicationController
   # GET /articles
   def index
     @articles = Article.all
-
+    
     render json: ArticleSerializer.new(@articles).serialized_json
   end
 
@@ -36,7 +36,12 @@ class ArticlesController < ApplicationController
   # DELETE /articles/1
   def destroy
     @article.destroy
-  end
+    if @article.destroyed
+      render json: @article, status: :ok
+    else 
+      render json: @article.errors, status: :unprocessable_entity
+    end
+end
 
   private
     # Use callbacks to share common setup or constraints between actions.
